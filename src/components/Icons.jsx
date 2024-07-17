@@ -1,6 +1,13 @@
 'use client';
 
-import { app } from '@/firebase';
+import {
+  HiOutlineChat,
+  HiOutlineHeart,
+  HiOutlineTrash,
+  HiHeart,
+} from 'react-icons/hi';
+
+import { signIn, useSession } from 'next-auth/react';
 import {
   collection,
   deleteDoc,
@@ -10,25 +17,18 @@ import {
   serverTimestamp,
   setDoc,
 } from 'firebase/firestore';
-import { signIn, useSession } from 'next-auth/react';
+import { app } from '../firebase';
 import { useEffect, useState } from 'react';
-import {
-  HiOutlineChat,
-  HiOutlineHeart,
-  HiOutlineTrash,
-  HiHeart,
-} from 'react-icons/hi';
+import { modalState, postIdState } from '../atom/modalAtom';
 import { useRecoilState } from 'recoil';
-import { modalState, postIdState } from '@/atom/modalAtom';
 
 export default function Icons({ id, uid }) {
   const { data: session } = useSession();
   const [isLiked, setIsLiked] = useState(false);
-  const [likes, setLikes] = useState([]);
+  const [likes, setLikes] = useState([]); // [1
   const [open, setOpen] = useRecoilState(modalState);
-  const [postId, setPostId] = useRecoilState(postIdState);
-  const [comments, setComments] = useState([]);
-
+  const [postId, setPostId] = useRecoilState(postIdState); // [2
+  const [comments, setComments] = useState([]); // [3
   const db = getFirestore(app);
   const likePost = async () => {
     if (session) {
@@ -37,7 +37,7 @@ export default function Icons({ id, uid }) {
       } else {
         await setDoc(doc(db, 'posts', id, 'likes', session.user.uid), {
           username: session.user.username,
-          timestap: serverTimestamp(),
+          timestamp: serverTimestamp(),
         });
       }
     } else {
@@ -67,10 +67,10 @@ export default function Icons({ id, uid }) {
 
   const deletePost = async () => {
     if (window.confirm('Are you sure you want to delete this post?')) {
-      if (session?.user?.uid === id) {
+      if (session?.user?.uid === uid) {
         deleteDoc(doc(db, 'posts', id))
           .then(() => {
-            console.log('Document successfully deleted');
+            console.log('Document successfully deleted!');
             window.location.reload();
           })
           .catch((error) => {
@@ -83,10 +83,10 @@ export default function Icons({ id, uid }) {
   };
 
   return (
-    <div className="flex justify-start gap-5 p-2 text-gray-500">
-      <div className="flex items-center">
+    <div className='flex justify-start gap-5 p-2 text-gray-500'>
+      <div className='flex items-center'>
         <HiOutlineChat
-          className="h-8 w-8 cursor-pointer rounded-full transition duration-500 ease-in-out p-2 hover:text-sky-500 hover:bg-sky-100"
+          className='h-8 w-8 cursor-pointer rounded-full  transition duration-500 ease-in-out p-2 hover:text-sky-500 hover:bg-sky-100'
           onClick={() => {
             if (!session) {
               signIn();
@@ -97,19 +97,19 @@ export default function Icons({ id, uid }) {
           }}
         />
         {comments.length > 0 && (
-          <span className="text-xs">{comments.length}</span>
+          <span className='text-xs'>{comments.length}</span>
         )}
       </div>
-      <div className="flex items-center">
+      <div className='flex items-center'>
         {isLiked ? (
           <HiHeart
             onClick={likePost}
-            className="h-8 w-8 cursor-pointer rounded-full transition text-red-600 duration-500 ease-in-out p-2 hover:text-red-500 hover:bg-red-100"
+            className='h-8 w-8 cursor-pointer rounded-full  transition text-red-600 duration-500 ease-in-out p-2 hover:text-red-500 hover:bg-red-100'
           />
         ) : (
           <HiOutlineHeart
             onClick={likePost}
-            className="h-8 w-8 cursor-pointer rounded-full transition duration-500 ease-in-out p-2 hover:text-red-500 hover:bg-red-100"
+            className='h-8 w-8 cursor-pointer rounded-full  transition duration-500 ease-in-out p-2 hover:text-red-500 hover:bg-red-100'
           />
         )}
         {likes.length > 0 && (
@@ -121,8 +121,8 @@ export default function Icons({ id, uid }) {
 
       {session?.user?.uid === uid && (
         <HiOutlineTrash
+          className='h-8 w-8 cursor-pointer rounded-full  transition duration-500 ease-in-out p-2 hover:text-red-500 hover:bg-red-100'
           onClick={deletePost}
-          className="h-8 w-8 cursor-pointer rounded-full transition duration-500 ease-in-out p-2 hover:text-red-500 hover:bg-red-100"
         />
       )}
     </div>
